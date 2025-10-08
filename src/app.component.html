@@ -1,0 +1,115 @@
+@if (gamePhase() === 'setup') {
+  <app-setup-screen 
+    [isLoading]="isLoading()"
+    [error]="error()"
+    (startGeneration)="startAdventure($event)" />
+}
+
+@if (gamePhase() === 'playing' && gameState(); as state) {
+  <div class="relative w-screen h-screen bg-black font-sans overflow-hidden text-white">
+    <!-- Background Image -->
+    <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+        [class.opacity-100]="currentBackgroundImageUrl()"
+        [class.opacity-0]="!currentBackgroundImageUrl()">
+      @if (currentBackgroundImageUrl(); as bgUrl) {
+        <div class="absolute inset-0 bg-cover bg-center transition-all duration-1000" [style.background-image]="'url(' + bgUrl + ')'"></div>
+      }
+    </div>
+    <div class="absolute inset-0 bg-black/40" style="box-shadow: inset 0 0 200px rgba(0,0,0,0.8)"></div>
+
+    <!-- Top Info Bar -->
+    <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-20 bg-black/20 backdrop-blur-sm">
+      <div class="flex items-center gap-4 w-1/4 text-left">
+          <button (click)="startOver()" class="px-3 py-1 text-sm bg-black/40 hover:bg-white/20 border border-white/20 rounded-md transition-colors">
+            New Game
+          </button>
+          <div class="text-lg font-semibold text-white/90">Score: {{ state.score }}</div>
+      </div>
+      <h1 class="text-2xl font-bold text-yellow-300 uppercase tracking-widest text-center w-1/2" 
+          [class]="titleFontClass()"
+          style="text-shadow: 0 0 8px rgba(252, 211, 77, 0.7);">
+          {{ state.storyArc.title }}
+      </h1>
+      <div class="text-lg font-semibold text-white/90 w-1/4 text-right">Lives: {{ state.lives }}</div>
+    </div>
+
+    <!-- Loading Overlay -->
+    @if(isLoading()) {
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-opacity duration-300">
+        <app-loading-spinner></app-loading-spinner>
+        <p class="mt-4 text-lg text-white/80 animate-pulse">The world is changing...</p>
+      </div>
+    }
+
+    <!-- Main UI Overlay -->
+    <div class="absolute inset-0 flex items-end justify-center p-4 md:p-8">
+      <div class="relative w-full max-w-7xl h-full flex flex-col justify-end">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 w-full">
+
+          <!-- Left: Chat and Input -->
+          <div class="md:col-span-4 flex flex-col justify-end h-full">
+            <div class="bg-black/40 p-3 rounded-lg backdrop-blur-md border border-white/20 flex flex-col justify-end shadow-2xl">
+              @if(state.scene.description; as description) {
+                <p class="text-gray-200 leading-relaxed text-base">{{ description }}</p>
+              }
+              
+              @if(error(); as errorMessage) {
+                <div class="mt-2 text-red-400 text-center text-sm">
+                  {{ errorMessage }}
+                </div>
+              }
+
+              <form (ngSubmit)="submitAction()" class="mt-2 flex items-center gap-3">
+                <input type="text" [(ngModel)]="playerInput" name="playerInput" placeholder="What do you do?" [disabled]="isLoading()" class="w-full bg-transparent border-b-2 border-white/30 focus:border-white text-lg p-1 outline-none transition-colors disabled:opacity-50"/>
+                <button type="submit" [disabled]="isLoading()" class="p-2 disabled:opacity-50 text-white/70 hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Right: Status Panel -->
+          <div class="md:col-span-1">
+            <div class="bg-black/40 p-4 rounded-lg backdrop-blur-md border border-white/20 h-full shadow-2xl flex flex-col gap-4">
+              <!-- Objectives -->
+              @if(state.difficulty !== 'Hard') {
+                <div>
+                  <h3 class="text-white/50 text-sm uppercase font-semibold tracking-wider mb-2">Objectives</h3>
+                  @if(state.difficulty === 'Easy') {
+                    <ul class="space-y-1">
+                      @for(obj of state.storyArc.keyPlotPoints; track obj) {
+                        <li class="text-sm text-white/80" [class.line-through]="state.completedObjectives.includes(obj)">
+                          - {{ obj }}
+                        </li>
+                      }
+                    </ul>
+                  }
+                  @if(state.difficulty === 'Medium' && state.currentObjective) {
+                     <p class="text-sm text-white/90 font-semibold">{{ state.currentObjective }}</p>
+                  }
+                </div>
+              }
+              
+              <!-- Inventory -->
+              <div>
+                <h3 class="text-white/50 text-sm uppercase font-semibold tracking-wider mb-3">Inventory</h3>
+                @if(state.inventory && state.inventory.length > 0) {
+                  <div class="grid grid-cols-4 md:grid-cols-2 gap-3">
+                    @for(item of state.inventory; track item.name) {
+                      <div class="aspect-square bg-white/10 rounded-md flex items-center justify-center text-3xl" [title]="item.name">
+                        {{ item.icon }}
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="text-white/40 text-sm col-span-4 md:col-span-2">Empty</p>
+                }
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,5 @@
+{
+  "name": "Visual Adventure Engine",
+  "description": "A player for hyper-realistic, AI-powered graphical adventure games. Experience a persistent world where your actions visually alter the environment, creating a unique, immersive narrative adventure.",
+  "requestFramePermissions": []
+}

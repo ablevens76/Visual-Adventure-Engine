@@ -1,0 +1,22 @@
+/* All styles are handled by Tailwind CSS in the template */
+
+/* Added custom font families for genre-specific titles */
+.font-fantasy {
+  font-family: 'Cinzel', serif;
+}
+
+.font-scifi {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-mystery {
+  font-family: 'Special Elite', monospace;
+}
+
+.font-horror {
+  font-family: 'Creepster', cursive;
+}
+
+.font-cyberpunk {
+  font-family: 'Audiowide', sans-serif;
+}
